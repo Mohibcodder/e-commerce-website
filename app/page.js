@@ -1,20 +1,19 @@
 import dbConnect from '../lib/dbConnect';
 import Product from '../models/Product';
-import HomePageClient from '../components/HomePageClient'; // Client component ko import karein
+import HomePageClient from '../components/HomePageClient';
 
-// Yeh function server par chalega aur data fetch karega
+// Add this line to re-fetch data at most once every 60 seconds
+export const revalidate = 60; 
+
+export const dynamic = 'force-dynamic'; // <-- YEH LINE ADD KAREIN
+
 async function getProducts() {
   await dbConnect();
-  // Homepage par sirf 8 products dikhayein
   const products = await Product.find({}).limit(8).lean(); 
   return JSON.parse(JSON.stringify(products));
 }
 
-// Yeh main Server Component hai
 export default async function Page() {
-  // Products ka data hasil karein
   const products = await getProducts();
-  
-  // Data ko client component mein as a prop bhej dein
   return <HomePageClient products={products} />;
 }
