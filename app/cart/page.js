@@ -2,9 +2,10 @@
 import { useContext } from 'react';
 import { Store } from '../../context/Store';
 import Link from 'next/link';
-import Image from 'next/image';
+// import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import Layout from '../../components/Layout';
+import { FiTrash2, FiPlus, FiMinus, FiShoppingBag } from 'react-icons/fi';
 
 export default function CartPage() {
   const router = useRouter();
@@ -17,76 +18,86 @@ export default function CartPage() {
   
   const updateCartHandler = (item, qty) => {
     const quantity = Number(qty);
+    if (quantity < 1) return;
     dispatch({ type: 'CART_ADD_ITEM', payload: { ...item, quantity } });
   };
 
+  const subtotal = cartItems.reduce((a, c) => a + c.quantity * c.price, 0);
+
   return (
     <Layout title="Shopping Cart">
-      <h1 className="mb-4 text-xl">Shopping Cart</h1>
-      {cartItems.length === 0 ? (
-        <div>
-          Cart is empty. <Link href="/shop">Go shopping</Link>
-        </div>
-      ) : (
-        <div className="grid md:grid-cols-4 md:gap-5">
-          <div className="overflow-x-auto md:col-span-3">
-            <table className="min-w-full">
-              <thead className="border-b">
-                <tr>
-                  <th className="px-5 text-left">Item</th>
-                  <th className="p-5 text-right">Quantity</th>
-                  <th className="p-5 text-right">Price</th>
-                  <th className="p-5">Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                {cartItems.map((item) => (
-                  <tr key={item.slug} className="border-b">
-                    <td>
-                      <Link href={`/product/${item.slug}`} className="flex items-center">
-                        <Image src={item.image} alt={item.name} width={50} height={50}></Image>
-                        &nbsp;
-                        {item.name}
-                      </Link>
-                    </td>
-                    <td className="p-5 text-right">
-                       <select value={item.quantity} onChange={(e) => updateCartHandler(item, e.target.value)}>
-                         {[...Array(item.countInStock).keys()].map((x) => (
-                           <option key={x + 1} value={x + 1}> {x + 1} </option>
-                         ))}
-                       </select>
-                    </td>
-                    <td className="p-5 text-right">${item.price}</td>
-                    <td className="p-5 text-center">
-                      <button onClick={() => removeItemHandler(item)}>
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" /></svg>
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+      <div className="container mx-auto px-4 py-8">
+        <h1 className="text-3xl font-bold mb-8 font-serif">Your Cart</h1>
+        {cartItems.length === 0 ? (
+          <div className="text-center py-16">
+            <FiShoppingBag className="mx-auto text-slate-300" size={80} />
+            <p className="text-xl text-slate-500 mt-4">Your cart is empty.</p>
+            <Link href="/shop" className="mt-6 inline-block bg-teal-600 text-white font-semibold py-3 px-8 rounded-md shadow-sm hover:bg-teal-700 transition-colors">
+              Continue Shopping
+            </Link>
           </div>
-          <div className="card p-5">
-            <ul>
-              <li>
-                <div className="pb-3 text-xl">
-                  Subtotal ({cartItems.reduce((a, c) => a + c.quantity, 0)}) : $
-                  {cartItems.reduce((a, c) => a + c.quantity * c.price, 0)}
+        ) : (
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            {/* Cart Items List */}
+            <div className="lg:col-span-2 space-y-4">
+              {cartItems.map((item) => (
+                <div key={item.slug} className="flex items-center bg-white p-4 rounded-lg shadow-sm border border-slate-200">
+                  <div className="flex-shrink-0">
+                    <img src={item.image} alt={item.name} width={80} height={80} className="rounded-md"></img>
+                  </div>
+                  <div className="flex-grow ml-4">
+                    <Link href={`/product/${item.slug}`} className="font-semibold text-slate-800 hover:text-teal-600">
+                      {item.name}
+                    </Link>
+                    <p className="text-slate-500 text-sm">${item.price}</p>
+                  </div>
+                  <div className="flex items-center space-x-3">
+                    <button onClick={() => updateCartHandler(item, item.quantity - 1)} className="p-1 rounded-full hover:bg-slate-100"><FiMinus /></button>
+                    <span className="font-semibold">{item.quantity}</span>
+                    <button onClick={() => updateCartHandler(item, item.quantity + 1)} className="p-1 rounded-full hover:bg-slate-100"><FiPlus /></button>
+                  </div>
+                  <div className="ml-6 font-semibold text-lg">
+                    ${(item.quantity * item.price).toFixed(2)}
+                  </div>
+                  <div className="ml-6">
+                    <button onClick={() => removeItemHandler(item)} className="text-slate-400 hover:text-red-500">
+                      <FiTrash2 size={20} />
+                    </button>
+                  </div>
                 </div>
-              </li>
-              <li>
+              ))}
+            </div>
+
+            {/* Order Summary */}
+            <div className="lg:col-span-1">
+              <div className="bg-white p-6 rounded-lg shadow-sm border border-slate-200 sticky top-24">
+                <h2 className="text-xl font-bold font-serif mb-4">Order Summary</h2>
+                <div className="space-y-2">
+                  <div className="flex justify-between">
+                    <p className="text-slate-600">Subtotal ({cartItems.reduce((a, c) => a + c.quantity, 0)} items)</p>
+                    <p className="font-semibold">${subtotal.toFixed(2)}</p>
+                  </div>
+                  <div className="flex justify-between">
+                    <p className="text-slate-600">Shipping</p>
+                    <p className="font-semibold">Free</p>
+                  </div>
+                </div>
+                <hr className="my-4"/>
+                <div className="flex justify-between text-xl font-bold">
+                  <p>Total</p>
+                  <p>${subtotal.toFixed(2)}</p>
+                </div>
                 <button
                   onClick={() => router.push('/checkout')}
-                  className="primary-button w-full"
+                  className="w-full mt-6 bg-black cursor-pointer text-white font-bold py-3 px-6 rounded-md shadow-md hover:bg-primary-hover transition-all duration-300 ease-in-out"
                 >
-                  Check Out
+                  Proceed to Checkout
                 </button>
-              </li>
-            </ul>
+              </div>
+            </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </Layout>
   );
 }

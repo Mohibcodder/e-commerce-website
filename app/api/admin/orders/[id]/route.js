@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
-import dbConnect from '../../../../lib/dbConnect';
-import Order from '../../../../models/Order';
+import dbConnect from '../../../../../lib/dbConnect';
+import Order from '../../../../../models/Order';
 
 export async function PUT(req, { params }) {
   const { id } = params;
@@ -12,11 +12,19 @@ export async function PUT(req, { params }) {
 
     if (order) {
       order.status = status;
-      // Agar status "Paid" ya "Shipped" hai to payment status bhi update kar sakte hain
-      if (status === 'Verified & Paid' || status === 'Shipped') {
+
+      // --- UPDATED LOGIC ---
+      // isPaid is only true if status is "Verified & Paid"
+      if (status === 'Verified & Paid') {
         order.isPaid = true;
         order.paidAt = Date.now();
+      } else {
+        // If status is changed back to pending, mark it as not paid
+        order.isPaid = false;
+        order.paidAt = null;
       }
+      // --- END OF UPDATED LOGIC ---
+
       const updatedOrder = await order.save();
       return NextResponse.json({ success: true, data: updatedOrder });
     } else {

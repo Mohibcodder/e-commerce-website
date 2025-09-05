@@ -12,6 +12,8 @@ async function getProducts(category) {
   return JSON.parse(JSON.stringify(products));
 }
 
+export const dynamic = 'force-dynamic'; // <-- YEH LINE ADD KAREIN
+
 export default async function ShopPage({ searchParams }) {
   const category = searchParams.category || '';
   const products = await getProducts(category);

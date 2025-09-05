@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import axios from 'axios';
 import { Toaster, toast } from 'react-hot-toast';
-import Layout from '../../../../components/Layout';
+import Layout from '../../../../../components/Layout';
 
 export default function NewProductPage() {
   const router = useRouter();
