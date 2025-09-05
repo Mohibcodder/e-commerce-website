@@ -25,7 +25,7 @@ export default function ContactPage() {
                 {/* Header Section */}
                 <div className="text-center py-16 bg-slate-50">
                     <h1 className="text-4xl md:text-5xl font-bold font-serif text-slate-800">Get In Touch</h1>
-                    <p className="text-lg text-slate-500 mt-4 max-w-2xl mx-auto">We'd love to hear from you. Whether you have a question about our products, pricing, or anything else, our team is ready to answer all your questions.</p>
+                    <p className="text-lg text-slate-500 mt-4 max-w-2xl mx-auto">We love to hear from you. Whether you have a question about our products, pricing, or anything else, our team is ready to answer all your questions.</p>
                 </div>
 
                 <div className="container mx-auto px-6 py-20">
